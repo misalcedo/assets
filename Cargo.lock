@@ -304,7 +304,7 @@ checksum = "71938f30533e4d95a6d17aa530939da3842c2ab6f4f84b9dae68447e4129f74a"
 
 [[package]]
 name = "assets"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "async-graphql",

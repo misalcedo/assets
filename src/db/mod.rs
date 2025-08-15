@@ -115,8 +115,8 @@ fn map_row_to_asset(row: &duckdb::Row) -> duckdb::Result<Asset> {
         last_update_attempt: row.get(10)?,
         modification_date: row.get(11)?,
         nickname: row.get(12)?,
-        primary_asset_category: row.get(12)?,
-        wealth_asset_type: row.get(13)?,
-        wid: row.get(14)?,
+        primary_asset_category: row.get(13)?,
+        wealth_asset_type: row.get(14)?,
+        wid: row.get(15)?,
     })
 }
