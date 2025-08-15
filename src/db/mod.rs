@@ -2,6 +2,7 @@ mod model;
 
 use std::path::Path;
 use std::time::Duration;
+use chrono::{DateTime, Utc};
 use duckdb::{params, DuckdbConnectionManager};
 
 pub use model::*;
@@ -83,7 +84,7 @@ impl AssetRepository {
         offset: usize,
     ) -> anyhow::Result<Vec<Asset>> {
         let connection = self.pool.get_timeout(self.pool_timeout)?;
-        let mut statement = connection.prepare(include_str!("sql/all_balances.sql"))?;
+        let mut statement = connection.prepare(include_str!("sql/balances.sql"))?;
         let assets = statement.query_map(params![as_of, limit, offset], map_row_to_asset)?;
 
         Ok(assets.filter_map(Result::ok).collect())
@@ -97,4 +98,25 @@ impl AssetRepository {
 
         Ok(count)
     }
+}
+
+fn map_row_to_asset(row: &duckdb::Row) -> duckdb::Result<Asset> {
+    Ok(Asset {
+        asset_id: row.get(0)?,
+        balance_as_of: row.get(1)?,
+        balance_current: row.get(2)?,
+        creation_date: row.get(3)?,
+        deactivate_by: row.get(4)?,
+        include_in_net_worth: row.get(5)?,
+        is_active: row.get(6)?,
+        is_asset: row.get(7)?,
+        is_favorite: row.get(8)?,
+        last_update: row.get(9)?,
+        last_update_attempt: row.get(10)?,
+        modification_date: row.get(11)?,
+        nickname: row.get(12)?,
+        primary_asset_category: row.get(12)?,
+        wealth_asset_type: row.get(13)?,
+        wid: row.get(14)?,
+    })
 }
