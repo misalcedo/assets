@@ -1,0 +1,1 @@
+INSERT INTO assets (asset_id, balance_as_of, balance_current, creation_date, deactivate_by, include_in_net_worth, is_active, is_asset, is_favorite, last_update, last_update_attempt, modification_date, nickname, primary_asset_category, wealth_asset_type, wid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

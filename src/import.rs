@@ -1,5 +1,61 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use crate::db;
+
+impl TryFrom<Asset> for db::Asset {
+    type Error = anyhow::Error;
+
+    fn try_from(asset: Asset) -> Result<Self, Self::Error> {
+        Ok(db::Asset {
+            asset_id: asset.asset_id,
+            balance_as_of: asset.balance_as_of,
+            balance_current: asset.balance_current,
+            creation_date: asset.creation_date,
+            deactivate_by: asset.deactivate_by,
+            include_in_net_worth: asset.include_in_net_worth,
+            is_active: asset.is_active,
+            is_asset: asset.is_asset,
+            is_favorite: asset.is_favorite,
+            last_update: asset.last_update,
+            last_update_attempt: asset.last_update_attempt,
+            modification_date: asset.modification_date,
+            nickname: asset.nickname,
+            primary_asset_category: asset.primary_asset_category.try_into()?,
+            wealth_asset_type: asset.wealth_asset_type.try_into()?,
+            wid: asset.wid.as_u128() as i128,
+        })
+    }
+}
+
+impl TryFrom<PrimaryAssetCategory> for db::PrimaryAssetCategory {
+    type Error = anyhow::Error;
+
+    fn try_from(category: PrimaryAssetCategory) -> Result<Self, Self::Error> {
+        match category {
+            PrimaryAssetCategory::Cash => Ok(db::PrimaryAssetCategory::Cash),
+            PrimaryAssetCategory::Investment => Ok(db::PrimaryAssetCategory::Investment),
+            PrimaryAssetCategory::RealEstate => Ok(db::PrimaryAssetCategory::RealEstate),
+            PrimaryAssetCategory::OtherProperty => Ok(db::PrimaryAssetCategory::OtherProperty),
+            PrimaryAssetCategory::Unknown(s) => Ok(db::PrimaryAssetCategory::Unknown(s)),
+        }
+    }
+}
+
+impl TryFrom<WealthAssetType> for db::WealthAssetType {
+    type Error = anyhow::Error;
+
+    fn try_from(asset_type: WealthAssetType) -> Result<Self, Self::Error> {
+        match asset_type {
+            WealthAssetType::Brokerage => Ok(db::WealthAssetType::Brokerage),
+            WealthAssetType::Cash => Ok(db::WealthAssetType::Cash),
+            WealthAssetType::Cryptocurrency => Ok(db::WealthAssetType::Cryptocurrency),
+            WealthAssetType::RealEstate => Ok(db::WealthAssetType::RealEstate),
+            WealthAssetType::Vehicle => Ok(db::WealthAssetType::Vehicle),
+            WealthAssetType::Unknown(s) => Ok(db::WealthAssetType::Unknown(s)),
+        }
+    }
+}
 
 // Models an asset entry imported via the Wealth Import API.
 #[derive(Debug, Serialize, Deserialize)]
@@ -72,7 +128,7 @@ pub struct Asset {
     pub vendor_response: Option<String>,
     pub vendor_response_type: VendorResponseType,
     pub wealth_asset_type: WealthAssetType,
-    pub wid: String,
+    pub wid: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

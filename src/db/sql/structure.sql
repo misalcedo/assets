@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS assets (
+    asset_id VARCHAR(255) PRIMARY KEY NOT NULL,
+    balance_as_of DATETIME NOT NULL,
+    balance_current DOUBLE NOT NULL,
+    creation_date DATETIME NOT NULL,
+    deactivate_by DATETIME,
+    include_in_net_worth BOOLEAN NOT NULL,
+    is_active BOOLEAN NOT NULL,
+    is_asset BOOLEAN NOT NULL,
+    is_favorite BOOLEAN NOT NULL,
+    last_update DATETIME NOT NULL,
+    last_update_attempt DATETIME NOT NULL,
+    modification_date DATETIME NOT NULL,
+    nickname VARCHAR(255) NOT NULL,
+    primary_asset_category VARCHAR(255) NOT NULL,
+    wealth_asset_type VARCHAR(255) NOT NULL,
+    wid HUGEINT NOT NULL,
+);
