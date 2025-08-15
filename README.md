@@ -3,7 +3,6 @@ A GraphQL API for querying asset balances with historical data support.
 
 ## Features
 - **Historical Balance Queries**: Query asset balances as of any point in time
-- **Single Asset Lookup**: Direct queries for specific assets by name
 - **Container Support**: Ready-to-deploy Docker container
 - **Import API**: Bulk import of asset data from JSON files
 
