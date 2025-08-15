@@ -1,11 +1,14 @@
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 // Models an asset entry imported via the Wealth Import API.
-struct Asset {
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Asset {
     pub asset_description: Option<String>,
     pub asset_id: String,
     pub asset_info: String,
-    pub asset_info_type: String,
+    pub asset_info_type: AssetInfoType,
     // All null in sample data, assuming to be a String.
     pub asset_mask: Option<String>,
     // All null in sample data, assuming to be a String.
@@ -14,12 +17,12 @@ struct Asset {
     pub asset_owner_name: Option<String>,
     pub balance_as_of: DateTime<Utc>,
     pub balance_cost_basis: f64,
-    pub balance_cost_from: String,
+    pub balance_cost_from: BalanceCostFrom,
     pub balance_current: f64,
-    pub balance_from: String,
-    pub balance_price: f64,
-    pub balance_price_from: String,
-    pub balance_quantity_current: f64,
+    pub balance_from: BalanceFrom,
+    pub balance_price: Option<f64>,
+    pub balance_price_from: BalancePriceFrom,
+    pub balance_quantity_current: Option<f64>,
     // All null in sample data, assuming to be a String.
     pub beneficiary_composition: Option<String>,
     pub cognito_id: String,
@@ -28,9 +31,9 @@ struct Asset {
     pub currency_code: Option<String>,
     pub deactivate_by: Option<DateTime<Utc>>,
     pub description_estate_plan: String,
-    // All null in sample data, assuming to be a String.
-    pub has_investment: Option<String>,
-    pub holdings: Holdings,
+    // All null in sample data, assuming to be a bool.
+    pub has_investment: Option<bool>,
+    pub holdings: Option<Holdings>,
     pub include_in_net_worth: bool,
     pub institution_id: i64,
     // All null in sample data, assuming to be a String.
@@ -57,9 +60,9 @@ struct Asset {
     pub note_date: Option<DateTime<Utc>>,
     // All null in sample data, assuming to be a String.
     pub ownership: Option<String>,
-    pub primary_asset_category: String,
-    pub status: String,
-    pub status_code: StatusCode,
+    pub primary_asset_category: PrimaryAssetCategory,
+    pub status: Option<String>,
+    pub status_code: Option<StatusCode>,
     pub user_institution_id: String,
     // All null in sample data, assuming to be a String.
     pub vendor_account_type: Option<String>,
@@ -72,11 +75,67 @@ struct Asset {
     pub wid: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AssetInfoType {
+    ManualBrokerage,
+    ManualCash,
+    ManualCryptocurrency,
+    ManualRealEstate,
+    ManualVehicle,
+    Unknown(String)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum BalanceCostFrom {
+    UserManual,
+    Unknown(String)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum BalanceFrom {
+    UserManual,
+    Vendor,
+    Unknown(String)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum BalancePriceFrom {
+    UserManual,
+    Unknown(String)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Holdings {
+    pub major_asset_classes: Vec<MajorAssetClass>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MajorAssetClass {
+    pub asset_classes: Vec<AssetClass>,
+    pub major_class: MajorClass,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum MajorClass {
+    AlternativeInvestments,
+    CashDepositsMoneyMarketFunds,
+    FixedIncome,
+    Liabilities,
+    PublicEquity,
+    OtherInvestments,
+    Unknown(String)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AssetClass {
     pub minor_asset_class: MinorAssetClass,
     pub value: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum MinorAssetClass {
     AssetAllocation,
     Cash,
@@ -103,27 +162,11 @@ pub enum MinorAssetClass {
     SecurityBasedLoans,
     StructuredLoans,
     UsEquity,
-    VentureCapital
+    VentureCapital,
+    Unknown(String)
 }
 
-pub struct MajorAssetClass {
-    pub asset_classes: Vec<AssetClass>,
-    pub major_class: MajorClass,
-}
-
-pub enum MajorClass {
-    AlternativeInvestments,
-    CashDepositsMoneyMarketFunds,
-    FixedIncome,
-    Liabilities,
-    PublicEquity,
-    OtherInvestments
-}
-
-pub struct Holdings {
-    pub major_asset_classes: Vec<MajorAssetClass>,
-}
-
+#[derive(Debug, Serialize, Deserialize)]
 pub enum PrimaryAssetCategory {
     Cash,
     Investment,
@@ -132,13 +175,19 @@ pub enum PrimaryAssetCategory {
     Unknown(String)
 }
 
-pub enum StatusCode {}
+#[derive(Debug, Serialize, Deserialize)]
+pub enum StatusCode {
+    AutoUpdateAvailable,
+    Unknown(String)
+}
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum VendorResponseType {
     Other,
     Unknown(String)
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum WealthAssetType {
     Brokerage,
     Cash,
