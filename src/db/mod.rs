@@ -15,17 +15,6 @@ pub struct AssetRepository {
 }
 
 impl AssetRepository {
-    /// Creates a new instance of the `AssetsRepository` using an in-memory database.
-    #[allow(unused)]
-    pub fn memory(max_connections: u32, pool_timeout: Duration) -> anyhow::Result<Self> {
-        let manager = DuckdbConnectionManager::memory()?;
-        let pool = r2d2::Pool::builder()
-            .max_size(max_connections)
-            .build(manager)?;
-
-        Ok(Self { pool, pool_timeout })
-    }
-
     /// Creates a new instance of the `AssetsRepository`.
     pub fn new(
         path: impl AsRef<Path>,
@@ -84,5 +73,28 @@ impl AssetRepository {
         tx.commit()?;
 
         Ok(())
+    }
+
+    /// The balances of all assets as of a specific date.
+    pub fn balances(
+        &self,
+        as_of: DateTime<Utc>,
+        limit: usize,
+        offset: usize,
+    ) -> anyhow::Result<Vec<Asset>> {
+        let connection = self.pool.get_timeout(self.pool_timeout)?;
+        let mut statement = connection.prepare(include_str!("sql/all_balances.sql"))?;
+        let assets = statement.query_map(params![as_of, limit, offset], map_row_to_asset)?;
+
+        Ok(assets.filter_map(Result::ok).collect())
+    }
+
+    /// Count the total balances of all assets as of a specific date.
+    pub fn count_balances(&self, as_of: DateTime<Utc>) -> anyhow::Result<usize> {
+        let connection = self.pool.get_timeout(self.pool_timeout)?;
+        let mut statement = connection.prepare(include_str!("sql/count_balances.sql"))?;
+        let count = statement.query_row(params![as_of], |r| r.get(0))?;
+
+        Ok(count)
     }
 }

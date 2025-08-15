@@ -1,10 +1,12 @@
 [package]
 name = "assets"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
 anyhow = { version = "1.0.98" }
+async-graphql = {version = "7.0.17", features = ["chrono", "dynamic-schema", "graphiql", "playground", "tracing"] }
+async-graphql-axum = { version = "7.0.17" }
 axum = { version = "0.8.4" }
 chrono = { version = "0.4.41", features = ["serde"] }
 clap = { version = "4.5.43", features = ["derive"] }

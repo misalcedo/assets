@@ -3,8 +3,8 @@ use crate::{db, import};
 use anyhow::anyhow;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::response::{IntoResponse, Response};
-use axum::routing::post;
+use axum::response::{Html, IntoResponse, Response};
+use axum::routing::{get, post};
 use axum::{Json, Router, serve};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -32,13 +32,16 @@ impl ServerState {
 
 pub async fn start_server(start_options: &StartOptions) -> anyhow::Result<()> {
     let asset_repository =
-        db::AssetRepository::new(&start_options.database_path, 5, Duration::from_secs(10))?;
+        AssetRepository::new(&start_options.database_path, 5, Duration::from_secs(10))?;
 
     asset_repository.setup()?;
 
     let listener = TcpListener::bind(&start_options.address).await?;
-
+    let schema = Schema::build(api::QueryRoot, EmptyMutation, EmptySubscription)
+        .data(asset_repository.clone())
+        .finish();
     let app = Router::new()
+        .route("/", get(graphiql).post_service(GraphQL::new(schema)))
         .route("/import", post(import_assets))
         .layer((
             TraceLayer::new_for_http(),
@@ -53,6 +56,10 @@ pub async fn start_server(start_options: &StartOptions) -> anyhow::Result<()> {
         .await?;
 
     Ok(())
+}
+
+async fn graphiql() -> impl IntoResponse {
+    Html(GraphiQLSource::build().endpoint("/").finish())
 }
 
 async fn import_assets(
